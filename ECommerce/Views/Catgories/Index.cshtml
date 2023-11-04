@@ -1,0 +1,59 @@
+﻿@model ECommerce.Models.CategoriesModel
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<div style="display: inline-block; margin-right: 10px;">
+    <button type="button" id="btn_view" style="margin-top:5px;width:138px">View Categories</button>
+</div>
+<div style="display: inline-block; margin-right: 10px;">
+    <button type="button" id="btn_add" style="margin-top:5px;width:138px" >Add Categories</button>
+</div>
+
+<div class="AddCategories" style="margin-left:14%; margin-top:3%" >
+   
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+
+            <div class="form-group">
+                <label>Category Name:</label>
+                <div class="col-md-10">
+                    <input type="text" id="Cat_Name"required/>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:5px">
+                <input type="submit" id="btn_create"value="Add" class="btn btn-primary" />
+            </div>
+        </div>
+  
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function(){
+        $("#btn_view").click(function () {
+            window.location.href = '@Url.Action("ViewCategories", "Catgories")';
+        })
+        $("#btn_create").click(function () {
+            var name = $("#Cat_Name").val();
+
+            $.ajax({
+                url: '@Url.Action("AddCategories", "Catgories")',
+                type: 'POST',
+                data: { Cat_name: name },
+                success: function (result) {
+                    if (result.success) {
+                        showAlert('success', 'Category Added');
+                    }
+                    else {
+                        showAlert('error', 'Category could not be added.');
+                    }
+                }
+            });
+        })
+    })
+</script>

@@ -1,0 +1,85 @@
+﻿@model IEnumerable<ECommerce.Models.AddItemModel>
+@{
+    ViewBag.Title = "Index";
+}
+
+@Html.Partial("DialogBox")
+@Html.Partial("AlertMessage")
+
+
+<style>
+    .card-container {
+        display: flex;
+        flex-wrap: wrap; /* This allows items to wrap onto new rows */
+        margin: -5px; /* Negative margin to counteract the margin-right on individual cards */
+    }
+
+    .card {
+        width: 18rem;
+        margin: 40px; /* Add margin between cards */
+    }
+
+    #dialog {
+        display: none;
+    }
+</style>
+
+<div class="card-container d-flex">
+
+    @foreach (var item in Model)
+    {
+        <div class="card" style="width: 18rem; height:28rem">
+            <svg class="bd-placeholder-img card-img-top" width="90%" xmlns="http://www.w3.org/2000/svg" role="img" preserveAspectRatio="none">
+                <img src=@item.FilePath width="100%" height="100%" style="width:17.9rem;height:19rem" />
+            </svg>
+            @*<img class="bd-placeholder-img card-img-top" src="E:\MVC\ECommerce\ECommerce\Images\6868fe6d-e08e-49a5-af21-6e5aa8f5ad71.jpg" alt="Custom Image">*@
+            <div class="card-body">
+                <h5 class="card-title">@item.ItemName</h5>
+                <p class="card-text"><br /><b>Rs.@item.Price</b></p>
+                <button class="btn btn-primary">View</button>
+
+                @*<button class="btn btn-danger btn_cart" onclick="openDialog('Confirm', 'Do you want to add this item to cart?')" data-id="@item.ItemId" style="height:27%"><i class="material-icons">shopping_cart</i></button>
+                    Html.Partial("DialogBox")*@
+
+                @*<input type="number" id="qty" style="width:48px" placeholder="Qty" />*@
+                @if (item.Quantity>0)
+                {
+                    <button class="btn btn-danger btn_cart" data-id="@item.ItemId" style="height:27%"><i class="material-icons">shopping_cart</i></button>
+
+                    <h6 style="margin-left: 70%; margin-top: -10%; font-size: 12px; color:darkgreen ">Available</h6>
+                }
+                else
+                {
+                    <h6 style="margin-left: 64%; margin-top: -10%; font-size: 12px; color: red ">Out of Stock</h6>
+                }
+            </div>
+        </div>
+    }
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/custom/DialogBox.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+
+<script>
+   $(document).ready(function () {
+       $("#btn_additem").click(function () {
+        window.location.href = '@Url.Action("AddItems", "Items")';
+       });
+
+       $(".btn_cart").click(function () {
+           showAlert('error', 'Please Login to continue');
+       });
+   });
+
+</script>
+<script>
+    if (!sessionStorage.getItem("PageReloaded")) {
+        location.reload(true);
+        sessionStorage.setItem("PageReloaded", "true");
+    }
+</script>
+
+
+
+

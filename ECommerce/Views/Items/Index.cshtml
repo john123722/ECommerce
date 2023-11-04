@@ -1,0 +1,202 @@
+﻿@model IEnumerable<ECommerce.Models.AddItemModel>
+@{
+    ViewBag.Title = "Index";
+}
+
+@Html.Partial("DialogBox")
+@Html.Partial("AlertMessage")
+
+
+<style>
+    .card-container {
+        display: flex;
+        flex-wrap: wrap; /* This allows items to wrap onto new rows */
+        margin: -5px; /* Negative margin to counteract the margin-right on individual cards */
+    }
+
+    .card {
+        width: 18rem;
+        margin: 40px; /* Add margin between cards */
+    }
+
+    #dialog {
+        display: none;
+    }
+</style>
+@if (Convert.ToBoolean(Request.Cookies["Login"].Value))
+{
+    if (Convert.ToBoolean(Request.Cookies["IsSeller"].Value))
+    {
+        <button type="submit" id="btn_additem" style="margin-left:34px">Add Items</button>
+        <button type="submit" id="btn_edititem">Edit Items</button>
+    }
+}
+
+<div class="search-container" style="margin-left: 31%; margin-top: -1%;">
+    <input type="text" id="searchInput" placeholder="Search by Card Title">
+    <button onclick="searchCards()">Search</button>
+    @*<input type="text" id="searchInputByCategories" placeholder="Search by Card Categories" style="margin-left:15%">*@
+    @*<select id="searchInputByCategories" style="margin-left:15%" onchange="getCategories()">
+            <option value="">Select Category</option>
+        </select>*@
+    @*<button onclick="searchCardsByCategories()">Search</button>*@
+
+    <select id="categoryDropdown" style="margin-left:15%">
+        <option>Search by Categories</option>
+    </select>
+</div>
+
+
+@*<button onclick="openDialog()">Open Dialog</button>*@
+
+<div class="card-container d-flex">
+
+    @foreach (var item in Model)
+    {
+        <div class="card" style="width: 18rem; height:28rem">
+            <svg class="bd-placeholder-img card-img-top" width="90%" xmlns="http://www.w3.org/2000/svg" role="img" preserveAspectRatio="none">
+                @*<img src="/photo/alchemist.jpg" width="100%" height="100%" style="width:17.9rem;height:19rem" />*@
+                <img src=@item.FilePath width="100%" height="100%" style="width:17.9rem;height:19rem" />
+            </svg>
+            @*<img class="bd-placeholder-img card-img-top" src="E:\MVC\ECommerce\ECommerce\Images\6868fe6d-e08e-49a5-af21-6e5aa8f5ad71.jpg" alt="Custom Image">*@
+            <div class="card-body">
+                <h5 class="card-title">@item.ItemName</h5>
+                <h5 class="card-category" style="display:none">@item.Category</h5>
+                <p class="card-text"><br /><b>Rs.@item.Price</b></p>
+                <button class="btn btn-primary">View</button>
+
+                @if (item.Quantity>0)
+                {
+                    <button class="btn btn-danger btn_cart" data-id="@item.ItemId" style="height:27%"><i class="material-icons">shopping_cart</i></button>
+
+                    <h6 style="margin-left: 70%; margin-top: -10%; font-size: 12px; color:darkgreen ">Available</h6>
+                }
+                else
+                {
+                    <h6 style="margin-left: 64%; margin-top: -10%; font-size: 12px; color: red ">Out of Stock</h6>
+                }
+            </div>
+        </div>
+    }
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/custom/DialogBox.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        populateCategories();
+
+       $("#btn_additem").click(function () {
+        window.location.href = '@Url.Action("AddItems", "Items")';
+       });
+
+       $("#btn_edititem").click(function () {
+           var UId = @Request.Cookies["User"].Value;
+           window.location.href = '@Url.Action("EditItems", "Items")?UserId=' + encodeURIComponent(UId);
+       });
+
+       $(".btn_cart").click(function () {
+            openDialog('Confirm', 'Do you want to add this item to cart?').then((res) => {
+               if (res) {
+                   var item_id = $(this).data("id")
+                   $.ajax({
+                       url: '@Url.Action("AddToCart", "Items")',
+                       type: 'POST',
+                       data: { itemid: item_id },
+                       success: function (result) {
+                           showAlert('success', 'Item Added to Cart.');
+                       },
+                       error: function (error) {
+                           showAlert('error', 'Item could not be added to cart.');
+                       }
+                   });
+                   //showAlert('success', 'This is a sucess message!');
+                   //showAlert('warning', 'This is a warning message!');
+                   //showAlert('error', 'This is a error message!');
+               }
+               else {
+                   //console.log('Item not added to cart.');
+                   return;
+               }
+           });
+
+
+
+       });
+   });
+
+
+    function searchCards() {
+        var input, filter, cards, card, title, i, txtValue;
+        input = document.getElementById('searchInput');
+        filter = input.value.toUpperCase();
+        cards = document.getElementsByClassName('card');
+
+        for (i = 0; i < cards.length; i++) {
+            title = cards[i].getElementsByClassName('card-title')[0];
+            txtValue = title.textContent || title.innerText;
+
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                cards[i].style.display = '';
+            } else {
+                cards[i].style.display = 'none';
+            }
+        }
+    }
+
+    function searchCardsByCategories(CatName) {
+        var input,cards, card,title, i, txtValue;
+        input = CatName;
+        cards = document.getElementsByClassName('card');
+
+        for (i = 0; i < cards.length; i++) {
+            title = cards[i].getElementsByClassName('card-category')[0];
+            txtValue = title.textContent || title.innerText;
+
+            if (txtValue.indexOf(input) > -1) {
+                cards[i].style.display = '';
+            } else {
+                cards[i].style.display = 'none';
+            }
+        }
+    }
+
+
+    function populateCategories() {
+    $.ajax({
+        url: '@Url.Action("GetCategories", "Items")',
+        type: 'POST',
+        success: function (result) {
+            var categoryDropdown = document.getElementById("categoryDropdown");
+            //for (var i = 0; i < result.result.length; i++) {
+            //    //var optionHTML = '<option value=' + result.result[i].Category + '  onclick =searchCardsByCategories(' + result.result[i].Category + ')>  '+ result.result[i].Category+' </option>';
+            //    categoryDropdown.innerHTML += optionHTML;
+            //}
+            for (var i = 0; i < result.result.length; i++) {
+                var option = document.createElement("option");
+                option.value = result.result[i].Category;
+                option.text = result.result[i].Category;
+
+                categoryDropdown.appendChild(option);
+            }
+
+            categoryDropdown.onchange = function () {
+                var selectedCategory = this.value;
+                if (selectedCategory) {
+                    searchCardsByCategories(selectedCategory);
+                }
+            };
+
+        },
+        error: function (error) {
+            showAlert('error', 'Categories could not be loaded.');
+        }
+    });
+}
+
+</script>
+
+
+

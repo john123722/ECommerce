@@ -1,0 +1,47 @@
+﻿<style>
+    .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh; 
+    }
+    .container1 {
+        border: 2px solid #000;
+        padding: 10px;
+        width: 30%;
+        height: 46%;
+        margin-bottom:10%;
+    }
+</style>
+
+    @{
+        ViewBag.Title = "Index";
+    }
+
+    
+
+    @using (Html.BeginForm("Index", "Account", FormMethod.Post))
+    {
+        <div class="center">
+            <div class="container1">
+                <h2>User Login</h2><br />
+
+                <div class="form-group">
+                    <label class="usrname">Username:</label>
+                    <input type="text" id="username" name="Username" />
+                </div>
+                <br />
+                <div class="form-group">
+                    <label class="pw">Password:</label>
+                    <input type="password" id="password" name="Password" style="margin-left:6px" />
+                </div>
+                <div class="form-group">
+                    <button type="submit" value="submit" id="btnSubmit" style="margin-left:40%; margin-top:5%">Login</button>
+                </div>
+            </div>
+
+        </div>
+
+    }
+
+

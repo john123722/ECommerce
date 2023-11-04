@@ -1,0 +1,102 @@
+﻿@model IEnumerable<ECommerce.Models.CategoriesModel>
+
+@{
+    ViewBag.Title = "ViewCategories";
+}
+@Html.Partial("InputDialog")
+@Html.Partial("AlertMessage")
+
+<div style="display: inline-block; margin-right: 10px;">
+    <button type="button" id="btn_view" style="margin-top:5px;width:138px">View Categories</button>
+</div>
+<div style="display: inline-block; margin-right: 10px;">
+    <button type="button" id="btn_add" style="margin-top:5px;width:138px">Add Categories</button>
+</div>
+
+<br />
+<br />
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Category)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category)
+            </td>
+            <td>
+                <button type="submit" class="btn btn-primary btn-sm btn-small btn_edit" data-id="@item.Id">Edit</button>
+                <button type="submit" class="btn btn-danger btn-sm btn-small btn_remove" data-id="@item.Id">Delete</button>
+            </td>
+        </tr>
+    }
+
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/custom/InputDialog.js"></script>
+<script src="~/Scripts/custom/Alert.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+
+<script>
+    $(document).ready(function(){
+        $("#btn_add").click(function () {
+            window.location.href = '@Url.Action("Index", "Catgories")';
+        })
+
+        $(".btn_edit").click(function () {
+            var id = $(this).data("id");
+            showOkDialog("", "Edit", "<label id='comment-label' class='label-dialog'>New Name: &nbsp </label><input id='comment' type='text' class='input-dialog' style='width:50%'/>", function (userInput) {
+                var data = {
+                    CatName: userInput,
+                    CatId: id
+                }
+                console.log(data);
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EditCategories", "Catgories")',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (success) {
+                        if (success) {
+                            showAlert('success', 'Category Updated');
+                            window.location.href = '@Url.Action("ViewCategories", "Catgories")';
+                        } else {
+                            showAlert('error', 'Category could not be Updated');
+                        }
+                    }
+                });
+
+
+            });
+        })
+
+        $(".btn_remove").click(function () {
+            var id = $(this).data("id");
+            var data = {
+                CatId: id
+            }
+            $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("DeleteCategories", "Catgories")',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (success) {
+                        if (success) {
+                            showAlert('success', 'Category Deleted');
+                            window.location.href = '@Url.Action("ViewCategories", "Catgories")';
+                        } else {
+                            showAlert('error', 'Category could not be Deleted');
+                        }
+                    }
+                });
+        })
+    })
+</script>

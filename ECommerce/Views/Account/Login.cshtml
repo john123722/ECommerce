@@ -1,0 +1,79 @@
+﻿@{
+    Layout = null;
+    //var csrfToken = Guid.NewGuid().ToString();
+}
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="~/Content/CSS/loginStyle.css">
+</head>
+<body>
+    @Html.Partial("AlertMessage")
+    <div class="center">
+        <h1>Login</h1>
+        <form method="post">
+            @*@Html.AntiForgeryToken()
+        <input type="hidden" id="csrfToken" value="@csrfToken" />*@
+            @Html.AntiForgeryToken()
+            <div class="txt_field">
+                <input type="text" id="usr_name" required>
+                <span></span>
+                <label>Username</label>
+            </div>
+            <div class="txt_field">
+                <input type="password" id="pw" required>
+                <span></span>
+                <label>Password</label>
+            </div>
+            <div class="pass">Forgot Password?</div>
+            <input type="submit" id="btn_login" value="Login" required>
+            <div class="signup_link">
+                Not a user? <a id="signUp">Signup</a>
+            </div>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#btn_login").click(function () {
+                
+                var username = $("#usr_name").val();
+                var password = $("#pw").val();
+                var data = {
+                    UserName: username,
+                    PassWord: password
+                }
+
+                console.log(data);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Login", "Account")',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success) {
+                            showAlert('success', 'Login Successful');
+                            window.location.href = '@Url.Action("Index", "Items")';
+                        }
+                        else {
+                            showAlert('error', 'UserName and Password do not match');
+                            window.location.href = '@Url.Action("Login", "Account")';
+                        }
+                    }
+                });
+            })
+
+            $("#signUp").click(function () {
+                window.location.href = '@Url.Action("SignUp", "Account")';
+            })
+        })
+
+    </script>
+</body>
+</html>
+
+
+
+

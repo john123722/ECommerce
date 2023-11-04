@@ -1,0 +1,139 @@
+﻿@model IEnumerable<ECommerce.Models.BuyModel>
+
+@{
+    ViewBag.Title = "ViewBuyReports";
+}
+@Html.Partial("DialogBox")
+@Html.Partial("AlertMessage")
+<h2>ViewBuyReports</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            S.N.
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ItemId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ItemName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Category)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.BuyerQuantity)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PricePerUnit)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TotalPrice)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Contact)
+        </th>
+        <th></th>
+    </tr>
+    @{ int counter = 1;}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@counter</td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BuyerQuantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PricePerUnit)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Contact)
+            </td>
+            <td>
+                @if (item.OrderCleared == 0)
+                {
+                    <button type="submit" class="btn btn-danger btn-sm btn-small btn_buy" id="@item.BuyerId" data-itemid="@item.ItemId">Clear Order</button>
+                }
+                @if (item.OrderCleared == 1)
+                {
+                    <button class="btn btn-success btn-sm btn-small btn_buy">Cleared</button>
+                }
+
+            </td>
+        </tr>
+
+        counter++;
+    }
+
+</table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/custom/InputDialog.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $(".btn_buy").click(function () {
+            openDialog('Confirm', 'Do you want to clear this order?').then((res) => {
+                if (res) {
+                    var buyerId = $(this).attr("id");
+                    var itemid = $(this).data("itemid");
+                    var data = {
+                        BuyerId: buyerId,
+                        ItemId: itemid
+                    }
+                   $.ajax({
+                       url: '@Url.Action("ClearOrder", "Items")',
+                       type: 'POST',
+                       data: JSON.stringify(data),
+                       contentType: 'application/json',
+                       success: function (success) {
+                           if (success) {
+                               showAlert('success', 'Order cleared sucessfully');
+                               window.location.href = '@Url.Action("ViewBuyReports", "Items")';
+                           }
+                           else {
+                               showAlert('error', 'Order could not be cleared');
+                           }
+
+                       },
+                       error: function (error) {
+                           showAlert('error', 'Server error');
+                       }
+                   });
+               }
+                else {
+                    showAlert('error', 'Server Error.');
+                   return;
+               }
+           });
+        })
+
+
+    })
+</script>

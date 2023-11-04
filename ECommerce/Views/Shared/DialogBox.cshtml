@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Dialog Box</title>
+    <link rel="stylesheet" href="~/Content/CSS/styles.css">
+</head>
+<body>
+    <div id="customDialog" class="dialog">
+        <div class="dialog-content">
+            <span class="close" onclick="closeDialog()">&times;</span>
+            <h5 id="dialogTitle"></h5>
+            <p id="dialogContent"></p>
+            <button id="dialogConfirmButton">Yes</button>
+            <button id="dialogCancelButton">No</button>
+            @*<button onclick="closeDialog()">Close</button>*@
+        </div>
+    </div>
+
+    <script src="~/Scripts/custom/DialogBox.js"></script>
+</body>
+</html>

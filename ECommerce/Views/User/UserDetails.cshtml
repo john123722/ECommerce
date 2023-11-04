@@ -1,0 +1,113 @@
+﻿@model ECommerce.Models.UserModel
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>UserDetails</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.UserName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("New / Current Password", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.PasswordFor(model => model.Password, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div id="confirmPasswordMessage" class="text-danger"></div>
+        <div class="form-group">
+            @Html.Label("Confirm Password", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.Password("ConfirmPassword", null, new { @class = "form-control", @required = "required" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Seller, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <label>
+                    @Html.RadioButtonFor(model => model.Seller, "1") Yes
+                </label>
+                <label style="margin-left:10px">
+                    @Html.RadioButtonFor(model => model.Seller, "0") No
+                </label>
+                @Html.ValidationMessageFor(model => model.Seller, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10" style="margin-top:2%">
+                <input type="submit" id="btn_Save" value="Save" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#ConfirmPassword").keyup(function () {
+            var password = $("#Password").val();
+            var confirmPassword = $("#ConfirmPassword").val();
+
+            if (password != confirmPassword) {
+                $("#confirmPasswordMessage").html("Passwords do not match!");
+                $("#btn_Save").prop("disabled", true); // Disable the button
+            } else {
+                $("#confirmPasswordMessage").html("");
+                $("#btn_Save").prop("disabled", false); // Enable the button
+            }
+        });
+
+        $('#btn_Save').click(function (e) {
+            e.preventDefault();
+
+            var formData = $('form').serialize();
+            var UserId = @ViewBag.UserId;
+            formData += '&UserId=' + UserId;
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("UserDetails", "User")',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                            showAlert('success', 'User Details edited');
+                        } else {
+                        showAlert('error', 'User Details could not be edited');
+                        }
+                }
+            });
+        });
+    });
+</script>
+

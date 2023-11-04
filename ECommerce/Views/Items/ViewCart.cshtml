@@ -1,0 +1,233 @@
+﻿@model IEnumerable<ECommerce.Models.CartModel>
+
+@{
+    ViewBag.Title = "ViewCart";
+}
+@Html.Partial("InputDialog")
+@Html.Partial("AlertMessage")
+@Html.Partial("DialogBox")
+<h2>ViewCart</h2>
+
+<table class="table">
+    <tr>
+        <th>S.N.</th>
+        <th>
+            @Html.DisplayNameFor(model => model.ItemName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Price)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Category)
+        </th>
+        @*<th>
+                @Html.DisplayNameFor(model => model.UserId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemId)
+            </th>*@
+        <th>
+            @Html.DisplayNameFor(model => model.Quantity)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        @*<th>
+                @Html.DisplayNameFor(model => model.FilePath)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FileSize)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FileType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FileName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UploadDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BuyerId)
+            </th>*@
+        <th>
+            @Html.DisplayNameFor(model => model.BuyerQuantity)
+        </th>
+        <th></th>
+    </tr>
+    @{ int counter = 1;}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@counter</td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category)
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.UserId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemId)
+                </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            @*
+                <td>
+                    @Html.DisplayFor(modelItem => item.BuyerId)
+                </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.BuyerQuantity)
+            </td>
+            <td>
+                <button type="submit" class="btn btn-primary btn-sm btn-small btn_edit" id="@item.ItemNo" data-quan="@item.Quantity" data-buy="@item.BuyerQuantity">Edit</button>
+                <button type="submit" class="btn btn-success btn-sm btn-small btn_buy" id="@item.ItemNo"  data-buy="@item.BuyerQuantity" data-itemid="@item.ItemId" data-price="@item.Price">Buy</button>
+                <button type="submit" class="btn btn-danger btn-sm btn-small btn_remove" id="@item.ItemNo" data-quan="@item.Quantity" data-buy="@item.BuyerQuantity">Remove</button>
+
+            </td>
+        </tr>
+        counter++;
+    }
+
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/custom/InputDialog.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $(".btn_edit").click(function () {
+            var itemNo = $(this).attr("id");
+            var totalQuantity = $(this).data("quan");
+            var BuyerQuantity = $(this).data("buy");
+            var updatedQuantity;
+            showOkDialog("", "Edit", "<label id='comment-label' class='label-dialog'>New Quantity: &nbsp </label><input id='comment' type='number' class='input-dialog' style='width:50%'/>", function (userInput) {
+                if (userInput > totalQuantity) {
+                    showAlert('error', 'Buying quantity cannot be greater than actual quantity');
+                    return;
+                }
+                if (userInput < 0) {
+                    showAlert('error', 'Buying quantity cannot be less than 0');
+                    return;
+                }
+                if (userInput >= BuyerQuantity) {
+                    updatedQuantity = totalQuantity - (userInput - BuyerQuantity);
+                }
+                if (userInput < BuyerQuantity) {
+                    updatedQuantity = totalQuantity + (BuyerQuantity - userInput);
+                }
+                var data = {
+                    itemNumber: itemNo,
+                    buyingQuantity: userInput,
+                    quantity: updatedQuantity
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Edit", "Items")',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success) {
+                            showAlert('success', 'Quantity Updated');
+                            window.location.href = '@Url.Action("ViewCart", "Items")';
+                        } else {
+                            showAlert('error', 'Quantity could not be Updated');
+                        }
+                    }
+                });
+
+
+            });
+
+
+        })
+
+        $(".btn_buy").click(function () {
+            openDialog('Confirm', 'Do you want to buy this item?').then((res) => {
+                if (res) {
+                    var buyItemNo = $(this).attr("id");
+                    var buyQuantity = $(this).data("buy");
+                    var itemid = $(this).data("itemid");
+                    var price = $(this).data("price");
+                    var data = {
+                        ItemNo: buyItemNo,
+                        BuyQuantity: buyQuantity,
+                        ItemId: itemid,
+                        Price: price
+                    }
+                   $.ajax({
+                       url: '@Url.Action("BuyItem", "Items")',
+                       type: 'POST',
+                       data: JSON.stringify(data),
+                       contentType: 'application/json',
+                       success: function (result) {
+                           if (result.success) {
+                               showAlert('success', 'Item placed for order.');
+                               window.location.href = '@Url.Action("ViewCart", "Items")';
+                           }
+                           else {
+                               showAlert('error', 'Item could not be placed for order.');
+                           }
+
+                       },
+                       error: function (error) {
+                           showAlert('error', 'Server error');
+                       }
+                   });
+               }
+                else {
+                    showAlert('error', 'Server Error.');
+                   return;
+               }
+           });
+        })
+
+        $(".btn_remove").click(function () {
+            openDialog('Confirm', 'Do you want to remove this item from cart?').then((res) => {
+                if (res) {
+                    var removeItemNo = $(this).attr("id");
+                    var removeTotalQuantity = $(this).data("quan");
+                    var removeBuyerQuantity = $(this).data("buy");
+                    var data = {
+                        ItemNo: removeItemNo,
+                        Quantity: removeTotalQuantity + removeBuyerQuantity
+                    }
+                   $.ajax({
+                       url: '@Url.Action("RemoveFromCart", "Items")',
+                       type: 'POST',
+                       data: JSON.stringify(data),
+                       contentType: 'application/json',
+                       success: function (result) {
+                           if (result.success) {
+                               showAlert('success', 'Item removed from Cart.');
+                               window.location.href = '@Url.Action("ViewCart", "Items")';
+                           }
+                           else {
+                               showAlert('error', 'Item could not be removed from cart.');
+                           }
+                       },
+                       error: function (error) {
+                           showAlert('error', 'Server error');
+                       }
+                   });
+               }
+                else {
+                    showAlert('error', 'Server Error.');
+                   return;
+               }
+           });
+        })
+    })
+</script>

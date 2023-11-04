@@ -1,0 +1,69 @@
+﻿@model IEnumerable<ECommerce.Models.UserModel>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>View User</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.UserId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UserName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Seller)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Contact)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.UserId)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Email)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.UserName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Seller)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Contact)
+        </td>
+        <td>
+            <button type="submit" class="btn btn-primary btn-sm btn-small btn_edit" id="@item.UserId">Edit</button>
+            @*<button type="submit" class="btn btn-success btn-sm btn-small btn_buy">Enable</button>
+            <button type="submit" class="btn btn-danger btn-sm btn-small btn_remove">Disable</button>*@
+        </td>
+    </tr>
+}
+
+</table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $('.btn_edit').click(function (e) {
+
+        var id = $(this).attr("id");
+        console.log(id);
+        window.location.href = '@Url.Action("UserDetails","User")' + '?UserId=' + id;
+     });
+</script>
